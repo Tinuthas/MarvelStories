@@ -1,5 +1,7 @@
 package com.waterclock.marvelstories.ui
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,17 +14,20 @@ import androidx.core.app.ComponentActivity
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
+import android.view.View
 
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
     lateinit var presenter: MainContract.Presenter
 
+    private var shortAnimTime:Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         presenter = MainPresenter(this)
+        shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime)
         presenter.getStories()
     }
 
@@ -39,8 +44,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showProgressRecycler(show: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+        progressBar.visibility = if(show) View.VISIBLE else View.GONE
+        recyclerViewStories.visibility = if(show) View.INVISIBLE else View.VISIBLE
+        progressBar.animate().setDuration(shortAnimTime.toLong()).alpha(if(show) 1F else 0F)
+            .setListener( object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    progressBar.visibility = if(show) View.VISIBLE else View.GONE
+                }
+            })    }
 
     override fun logout() {
         finish()

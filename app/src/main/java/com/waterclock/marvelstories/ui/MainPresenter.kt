@@ -14,18 +14,22 @@ class MainPresenter(val view: MainContract.View) : MainContract.Presenter {
 
     override fun getStories() {
         try {
+            view.showProgressRecycler(true)
             StoriesRepository().getAllStories(object: BaseCallback<CharactersModel>{
                 override fun onSuccessful(value: CharactersModel) {
                     view.initView(value)
+                    view.showProgressRecycler(false)
                 }
 
                 override fun onUnsuccessful(error: String) {
                     view.notification(error)
+                    view.showProgressRecycler(false)
                 }
 
             })
         }catch (e: Exception){
             e.message?.let { view.notification(it) }
+            view.showProgressRecycler(false)
             view.logout()
         }
 
